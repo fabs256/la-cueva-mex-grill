@@ -72,6 +72,8 @@ const MenuItem: React.FC<MenuItemProps> = ({ item }) => {
   const [removeIngredients, setRemoveIngredients] = useState<string[]>([]);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isRemoveOpen, setIsRemoveOpen] = useState(false);
+  const [isSubstituteOpen, setIsSubstituteOpen] = useState(false);
+  const [substitutions, setSubstitutions] = useState<{[key: string]: string}>({});
   const { addItem } = useShoppingBag();
   const { toast } = useToast();
 
@@ -83,7 +85,14 @@ const MenuItem: React.FC<MenuItemProps> = ({ item }) => {
     }
     
     if (removeIngredients.length > 0) {
-      specialInstructions += `Remove: ${removeIngredients.join(', ')}.`;
+      specialInstructions += `Remove: ${removeIngredients.join(', ')}. `;
+    }
+    
+    if (Object.keys(substitutions).length > 0) {
+      const substitutionText = Object.entries(substitutions)
+        .map(([from, to]) => `Substitute ${from} with ${to}`)
+        .join(', ');
+      specialInstructions += `Substitute: ${substitutionText}. `;
     }
     
     addItem(item, quantity, specialInstructions.trim());
@@ -91,6 +100,7 @@ const MenuItem: React.FC<MenuItemProps> = ({ item }) => {
     setQuantity(1);
     setAddIngredients([]);
     setRemoveIngredients([]);
+    setSubstitutions({});
     
     toast({
       title: "Added to bag",
@@ -113,6 +123,13 @@ const MenuItem: React.FC<MenuItemProps> = ({ item }) => {
         ? current.filter(i => i !== ingredient)
         : [...current, ingredient]
     );
+  };
+  
+  const handleSubstitute = (from: string, to: string) => {
+    setSubstitutions(current => ({
+      ...current,
+      [from]: to
+    }));
   };
 
   return (
@@ -261,6 +278,83 @@ const MenuItem: React.FC<MenuItemProps> = ({ item }) => {
                         <span className="text-sm">{ingredient}</span>
                       </div>
                     ))}
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
+
+              <Collapsible open={isSubstituteOpen} onOpenChange={setIsSubstituteOpen} className="border rounded-md p-2">
+                <CollapsibleTrigger className="flex w-full items-center justify-between">
+                  <span className="font-medium text-sm">Substitute ingredients</span>
+                  <span className="text-xs text-gray-500">
+                    {Object.keys(substitutions).length > 0 
+                      ? Object.entries(substitutions).map(([from, to]) => `${from} → ${to}`).join(', ') 
+                      : 'Select options'
+                    }
+                  </span>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="pt-2 space-y-3">
+                  {CUSTOMIZATION_OPTIONS.substitute.meat.map((option) => (
+                    <div key={`sub-meat-${option.from}`} className="space-y-1">
+                      <p className="text-sm font-medium">Substitute {option.from} with:</p>
+                      <Select 
+                        value={substitutions[option.from] || ''} 
+                        onValueChange={(value) => handleSubstitute(option.from, value)}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select substitute" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            {option.to.map((subOption) => (
+                              <SelectItem key={`sub-option-${subOption}`} value={subOption}>
+                                {subOption}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  ))}
+
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium">Other substitutions:</p>
+                    <div className="grid grid-cols-2 gap-1">
+                      {CUSTOMIZATION_OPTIONS.substitute.other.map((ingredient) => {
+                        const isSubstituted = Object.keys(substitutions).includes(ingredient);
+                        return (
+                          <div
+                            key={`sub-other-${ingredient}`}
+                            className={`flex items-center justify-between p-2 rounded cursor-pointer border ${
+                              isSubstituted ? 'bg-lacueva-red text-white border-lacueva-red' : 'bg-white'
+                            }`}
+                          >
+                            <span className="text-sm">{ingredient}</span>
+                            <Select 
+                              value={substitutions[ingredient] || ''}
+                              onValueChange={(value) => {
+                                if (value === '') {
+                                  const newSubs = {...substitutions};
+                                  delete newSubs[ingredient];
+                                  setSubstitutions(newSubs);
+                                } else {
+                                  handleSubstitute(ingredient, value);
+                                }
+                              }}
+                            >
+                              <SelectTrigger className="h-7 w-24 text-xs border-0 bg-transparent">
+                                <SelectValue placeholder="Replace" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="">None</SelectItem>
+                                <SelectItem value="Vegan cheese">Vegan cheese</SelectItem>
+                                <SelectItem value="Red onions">Red onions</SelectItem>
+                                <SelectItem value="Spinach">Spinach</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 </CollapsibleContent>
               </Collapsible>
