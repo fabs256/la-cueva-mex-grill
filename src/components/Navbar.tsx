@@ -9,6 +9,14 @@ import { useShoppingBag } from '@/contexts/ShoppingBagContext';
 const Navbar: React.FC = () => {
   const { itemCount } = useShoppingBag();
 
+  // Helper function to close the mobile menu
+  const closeMobileMenu = () => {
+    const menuButton = document.querySelector('button[data-state="open"]') as HTMLButtonElement;
+    if (menuButton) {
+      menuButton.click();
+    }
+  };
+
   return (
     <header className="sticky top-0 z-50 bg-white shadow-md">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
@@ -63,21 +71,21 @@ const Navbar: React.FC = () => {
                 <Link 
                   to="/" 
                   className="px-4 py-2 text-lg font-medium hover:bg-lacueva-lightBg rounded-md"
-                  onClick={() => document.querySelector('button[data-state="open"]')?.click()}
+                  onClick={closeMobileMenu}
                 >
                   Home
                 </Link>
                 <Link 
                   to="/menu" 
                   className="px-4 py-2 text-lg font-medium hover:bg-lacueva-lightBg rounded-md"
-                  onClick={() => document.querySelector('button[data-state="open"]')?.click()}
+                  onClick={closeMobileMenu}
                 >
                   Menu
                 </Link>
                 <Link 
                   to="/bag" 
                   className="px-4 py-2 text-lg font-medium hover:bg-lacueva-lightBg rounded-md"
-                  onClick={() => document.querySelector('button[data-state="open"]')?.click()}
+                  onClick={closeMobileMenu}
                 >
                   Cart
                 </Link>
