@@ -5,7 +5,6 @@ import { ShoppingBag as ShoppingBagIcon, User, Menu as MenuIcon } from 'lucide-r
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useShoppingBag } from '@/contexts/ShoppingBagContext';
-import ShoppingBagPanel from './ShoppingBag';
 
 const Navbar: React.FC = () => {
   const { itemCount } = useShoppingBag();
@@ -64,18 +63,21 @@ const Navbar: React.FC = () => {
                 <Link 
                   to="/" 
                   className="px-4 py-2 text-lg font-medium hover:bg-lacueva-lightBg rounded-md"
+                  onClick={() => document.querySelector('button[data-state="open"]')?.click()}
                 >
                   Home
                 </Link>
                 <Link 
                   to="/menu" 
                   className="px-4 py-2 text-lg font-medium hover:bg-lacueva-lightBg rounded-md"
+                  onClick={() => document.querySelector('button[data-state="open"]')?.click()}
                 >
                   Menu
                 </Link>
                 <Link 
                   to="/bag" 
                   className="px-4 py-2 text-lg font-medium hover:bg-lacueva-lightBg rounded-md"
+                  onClick={() => document.querySelector('button[data-state="open"]')?.click()}
                 >
                   Cart
                 </Link>
