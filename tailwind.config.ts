@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -24,6 +25,14 @@ export default {
 				ring: 'hsl(var(--ring))',
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
+                // La Cueva custom colors
+                lacueva: {
+                    red: '#C14532',
+                    brown: '#8D5B4C',
+                    yellow: '#F2B705',
+                    green: '#4A7C59',
+                    lightBg: '#FDF7F2',
+                },
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',
 					foreground: 'hsl(var(--primary-foreground))'
