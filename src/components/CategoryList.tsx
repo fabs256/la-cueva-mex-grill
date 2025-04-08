@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { cn } from '@/lib/utils';
 
@@ -15,7 +14,7 @@ const CategoryList: React.FC<CategoryListProps> = ({
 }) => {
   return (
     <div className="category-list overflow-x-auto sticky top-16 bg-white z-10 shadow-sm">
-      <div className="flex space-x-1 px-2 py-3 min-w-max">
+      <div className="flex justify-center space-x-1 px-2 py-3 min-w-max">
         {categories.map((category) => (
           <button
             key={category}
