@@ -98,9 +98,11 @@ const ShoppingBag: React.FC = () => {
           <span>Total</span>
           <span>${subtotal.toFixed(2)}</span>
         </div>
-        <Button className="w-full bg-lacueva-red hover:bg-lacueva-brown">
-          Checkout
-        </Button>
+        <Link to="/bag">
+          <Button className="w-full bg-lacueva-red hover:bg-lacueva-brown">
+            Checkout
+          </Button>
+        </Link>
       </div>
     </div>
   );

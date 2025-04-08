@@ -27,6 +27,9 @@ const Navbar: React.FC = () => {
           <Link to="/menu" className="font-medium text-gray-700 hover:text-lacueva-red transition-colors">
             Menu
           </Link>
+          <Link to="/bag" className="font-medium text-gray-700 hover:text-lacueva-red transition-colors">
+            Cart
+          </Link>
         </nav>
 
         {/* User Actions */}
@@ -38,21 +41,16 @@ const Navbar: React.FC = () => {
           </Link>
           
           {/* Shopping Bag */}
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="rounded-full relative">
-                <ShoppingBagIcon className="h-5 w-5" />
-                {itemCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-lacueva-red text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                    {itemCount}
-                  </span>
-                )}
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="right" className="w-full sm:max-w-lg">
-              <ShoppingBagPanel />
-            </SheetContent>
-          </Sheet>
+          <Link to="/bag">
+            <Button variant="ghost" size="icon" className="rounded-full relative">
+              <ShoppingBagIcon className="h-5 w-5" />
+              {itemCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-lacueva-red text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {itemCount}
+                </span>
+              )}
+            </Button>
+          </Link>
           
           {/* Mobile Menu */}
           <Sheet>
@@ -74,6 +72,12 @@ const Navbar: React.FC = () => {
                   className="px-4 py-2 text-lg font-medium hover:bg-lacueva-lightBg rounded-md"
                 >
                   Menu
+                </Link>
+                <Link 
+                  to="/bag" 
+                  className="px-4 py-2 text-lg font-medium hover:bg-lacueva-lightBg rounded-md"
+                >
+                  Cart
                 </Link>
               </div>
             </SheetContent>
