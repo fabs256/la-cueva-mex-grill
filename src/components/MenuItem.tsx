@@ -1,35 +1,105 @@
-
 import React, { useState } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
-import { Textarea } from '@/components/ui/textarea';
 import { useShoppingBag, MenuItem as MenuItemType } from '@/contexts/ShoppingBagContext';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/components/ui/use-toast';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 interface MenuItemProps {
   item: MenuItemType;
 }
 
+const CUSTOMIZATION_OPTIONS = {
+  add: [
+    "Extra cheese", 
+    "Avocado", 
+    "Jalapeños", 
+    "Sour cream", 
+    "Pico de gallo", 
+    "Guacamole", 
+    "Cilantro"
+  ],
+  remove: [
+    "Cheese", 
+    "Onions", 
+    "Tomatoes", 
+    "Lettuce", 
+    "Cilantro", 
+    "Sour cream"
+  ]
+};
+
 const MenuItem: React.FC<MenuItemProps> = ({ item }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [quantity, setQuantity] = useState(1);
-  const [specialInstructions, setSpecialInstructions] = useState('');
+  const [addIngredients, setAddIngredients] = useState<string[]>([]);
+  const [removeIngredients, setRemoveIngredients] = useState<string[]>([]);
+  const [isAddOpen, setIsAddOpen] = useState(false);
+  const [isRemoveOpen, setIsRemoveOpen] = useState(false);
   const { addItem } = useShoppingBag();
   const { toast } = useToast();
 
   const handleAddToCart = () => {
-    addItem(item, quantity, specialInstructions);
+    let specialInstructions = '';
+    
+    if (addIngredients.length > 0) {
+      specialInstructions += `Add: ${addIngredients.join(', ')}. `;
+    }
+    
+    if (removeIngredients.length > 0) {
+      specialInstructions += `Remove: ${removeIngredients.join(', ')}.`;
+    }
+    
+    addItem(item, quantity, specialInstructions.trim());
     setIsOpen(false);
     setQuantity(1);
-    setSpecialInstructions('');
+    setAddIngredients([]);
+    setRemoveIngredients([]);
     
     toast({
       title: "Added to bag",
       description: `${item.name} × ${quantity} added to your order`,
       duration: 2000,
     });
+  };
+
+  const toggleAddIngredient = (ingredient: string) => {
+    setAddIngredients(current => 
+      current.includes(ingredient) 
+        ? current.filter(i => i !== ingredient)
+        : [...current, ingredient]
+    );
+  };
+
+  const toggleRemoveIngredient = (ingredient: string) => {
+    setRemoveIngredients(current => 
+      current.includes(ingredient) 
+        ? current.filter(i => i !== ingredient)
+        : [...current, ingredient]
+    );
   };
 
   return (
@@ -129,14 +199,58 @@ const MenuItem: React.FC<MenuItemProps> = ({ item }) => {
               </div>
             </div>
             
-            <div>
-              <h4 className="font-medium mb-2">Special Instructions</h4>
-              <Textarea 
-                placeholder="Any specific preferences? (optional)"
-                value={specialInstructions}
-                onChange={(e) => setSpecialInstructions(e.target.value)}
-                className="resize-none"
-              />
+            <div className="space-y-3">
+              <h4 className="font-medium">Customizations</h4>
+              
+              <Collapsible open={isAddOpen} onOpenChange={setIsAddOpen} className="border rounded-md p-2">
+                <CollapsibleTrigger className="flex w-full items-center justify-between">
+                  <span className="font-medium text-sm">Add ingredients</span>
+                  <span className="text-xs text-gray-500">
+                    {addIngredients.length > 0 ? addIngredients.join(', ') : 'Select options'}
+                  </span>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="pt-2">
+                  <div className="grid grid-cols-2 gap-1">
+                    {CUSTOMIZATION_OPTIONS.add.map((ingredient) => (
+                      <div
+                        key={`add-${ingredient}`}
+                        className={`flex items-center space-x-2 p-2 rounded cursor-pointer border ${
+                          addIngredients.includes(ingredient) ? 'bg-lacueva-red text-white border-lacueva-red' : 'bg-white'
+                        }`}
+                        onClick={() => toggleAddIngredient(ingredient)}
+                      >
+                        {addIngredients.includes(ingredient) && <Check className="h-4 w-4" />}
+                        <span className="text-sm">{ingredient}</span>
+                      </div>
+                    ))}
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
+              
+              <Collapsible open={isRemoveOpen} onOpenChange={setIsRemoveOpen} className="border rounded-md p-2">
+                <CollapsibleTrigger className="flex w-full items-center justify-between">
+                  <span className="font-medium text-sm">Remove ingredients</span>
+                  <span className="text-xs text-gray-500">
+                    {removeIngredients.length > 0 ? removeIngredients.join(', ') : 'Select options'}
+                  </span>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="pt-2">
+                  <div className="grid grid-cols-2 gap-1">
+                    {CUSTOMIZATION_OPTIONS.remove.map((ingredient) => (
+                      <div
+                        key={`remove-${ingredient}`}
+                        className={`flex items-center space-x-2 p-2 rounded cursor-pointer border ${
+                          removeIngredients.includes(ingredient) ? 'bg-lacueva-red text-white border-lacueva-red' : 'bg-white'
+                        }`}
+                        onClick={() => toggleRemoveIngredient(ingredient)}
+                      >
+                        {removeIngredients.includes(ingredient) && <Check className="h-4 w-4" />}
+                        <span className="text-sm">{ingredient}</span>
+                      </div>
+                    ))}
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
             </div>
           </div>
           
