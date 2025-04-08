@@ -49,7 +49,20 @@ const CUSTOMIZATION_OPTIONS = {
     "Lettuce", 
     "Cilantro", 
     "Sour cream"
-  ]
+  ],
+  substitute: {
+    meat: [
+      { from: "Chicken", to: ["Steak", "Carnitas", "Barbacoa", "Ground Beef", "Shrimp", "Vegetarian (Plant-based)"] }
+    ],
+    other: [
+      "Cheese", 
+      "Onions", 
+      "Tomatoes", 
+      "Lettuce", 
+      "Cilantro", 
+      "Sour cream"
+    ]
+  }
 };
 
 const MenuItem: React.FC<MenuItemProps> = ({ item }) => {
