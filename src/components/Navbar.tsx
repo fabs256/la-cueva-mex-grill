@@ -1,11 +1,11 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingBag, User, Menu as MenuIcon } from 'lucide-react';
+import { ShoppingBag as ShoppingBagIcon, User, Menu as MenuIcon } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useShoppingBag } from '@/contexts/ShoppingBagContext';
-import ShoppingBag from './ShoppingBag';
+import ShoppingBagPanel from './ShoppingBag';
 
 const Navbar: React.FC = () => {
   const { itemCount } = useShoppingBag();
@@ -41,7 +41,7 @@ const Navbar: React.FC = () => {
           <Sheet>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="rounded-full relative">
-                <ShoppingBag className="h-5 w-5" />
+                <ShoppingBagIcon className="h-5 w-5" />
                 {itemCount > 0 && (
                   <span className="absolute -top-1 -right-1 bg-lacueva-red text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                     {itemCount}
@@ -50,7 +50,7 @@ const Navbar: React.FC = () => {
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-full sm:max-w-lg">
-              <ShoppingBag />
+              <ShoppingBagPanel />
             </SheetContent>
           </Sheet>
           
