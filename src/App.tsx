@@ -9,6 +9,7 @@ import { ShoppingBagProvider } from "./contexts/ShoppingBagContext";
 import Index from "./pages/Index";
 import Menu from "./pages/Menu";
 import ShoppingBagPage from "./pages/ShoppingBagPage";
+import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 
 // Create a new QueryClient instance
@@ -26,6 +27,7 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/menu" element={<Menu />} />
               <Route path="/bag" element={<ShoppingBagPage />} />
+              <Route path="/dashboard" element={<Dashboard />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

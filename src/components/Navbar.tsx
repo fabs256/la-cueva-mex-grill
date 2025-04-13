@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingBag as ShoppingBagIcon, User, Menu as MenuIcon } from 'lucide-react';
+import { ShoppingBag as ShoppingBagIcon, User, Menu as MenuIcon, LayoutDashboard } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useShoppingBag } from '@/contexts/ShoppingBagContext';
@@ -37,6 +37,9 @@ const Navbar: React.FC = () => {
           <Link to="/bag" className="font-medium text-gray-700 hover:text-lacueva-red transition-colors">
             Cart
           </Link>
+          <Link to="/dashboard" className="font-medium text-gray-700 hover:text-lacueva-red transition-colors">
+            Dashboard
+          </Link>
         </nav>
 
         {/* User Actions */}
@@ -44,6 +47,13 @@ const Navbar: React.FC = () => {
           <Link to="/account">
             <Button variant="ghost" size="icon" className="rounded-full">
               <User className="h-5 w-5" />
+            </Button>
+          </Link>
+          
+          {/* Dashboard Link */}
+          <Link to="/dashboard">
+            <Button variant="ghost" size="icon" className="rounded-full">
+              <LayoutDashboard className="h-5 w-5" />
             </Button>
           </Link>
           
@@ -88,6 +98,13 @@ const Navbar: React.FC = () => {
                   onClick={closeMobileMenu}
                 >
                   Cart
+                </Link>
+                <Link 
+                  to="/dashboard" 
+                  className="px-4 py-2 text-lg font-medium hover:bg-lacueva-lightBg rounded-md"
+                  onClick={closeMobileMenu}
+                >
+                  Dashboard
                 </Link>
               </div>
             </SheetContent>
