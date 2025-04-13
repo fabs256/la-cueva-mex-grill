@@ -332,7 +332,7 @@ const MenuItem: React.FC<MenuItemProps> = ({ item }) => {
                             <Select 
                               value={substitutions[ingredient] || ''}
                               onValueChange={(value) => {
-                                if (value === '') {
+                                if (value === 'none') {
                                   const newSubs = {...substitutions};
                                   delete newSubs[ingredient];
                                   setSubstitutions(newSubs);
@@ -345,7 +345,7 @@ const MenuItem: React.FC<MenuItemProps> = ({ item }) => {
                                 <SelectValue placeholder="Replace" />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="">None</SelectItem>
+                                <SelectItem value="none">None</SelectItem>
                                 <SelectItem value="Vegan cheese">Vegan cheese</SelectItem>
                                 <SelectItem value="Red onions">Red onions</SelectItem>
                                 <SelectItem value="Spinach">Spinach</SelectItem>
