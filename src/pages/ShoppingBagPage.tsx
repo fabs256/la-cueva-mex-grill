@@ -1,6 +1,9 @@
-
 import React from 'react';
-import Navbar from '@/components/Navbar';
+import { useNavigate } from 'react-router-dom';
+import { useShoppingBag } from '@/contexts/ShoppingBagContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { Navbar } from '@/components/Navbar';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useShoppingBag } from '@/contexts/ShoppingBagContext';
@@ -10,7 +13,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Form, FormField, FormItem, FormLabel, FormControl } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
 
 type PaymentFormValues = {
   name: string;
@@ -22,7 +24,8 @@ type PaymentFormValues = {
 };
 
 const ShoppingBagPage: React.FC = () => {
-  const { items, removeItem, updateQuantity, subtotal, itemCount } = useShoppingBag();
+  const { items, removeItem, updateQuantity, subtotal, itemCount, clearBag } = useShoppingBag();
+  const { user } = useAuth();
   const navigate = useNavigate();
   
   const form = useForm<PaymentFormValues>({
@@ -38,10 +41,8 @@ const ShoppingBagPage: React.FC = () => {
 
   const onSubmit = async (data: PaymentFormValues) => {
     try {
-      // Generate a unique session ID
       const sessionId = `session_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
       
-      // Create the order in the database
       const { data: orderData, error: orderError } = await supabase
         .from('orders')
         .insert({
@@ -51,15 +52,15 @@ const ShoppingBagPage: React.FC = () => {
           total_amount: subtotal * 1.0825, // Including tax
           order_status: 'New',
           special_instructions: '',
-          order_type: 'pickup', // Adding required order_type
-          session_id: sessionId // Adding required session_id
+          order_type: 'pickup',
+          session_id: sessionId,
+          user_id: user?.id // Add user ID if logged in
         })
         .select()
         .single();
 
       if (orderError) throw orderError;
 
-      // Insert order items
       const orderItems = items.map(item => ({
         order_id: orderData.id,
         menu_item_id: item.id,
@@ -74,9 +75,9 @@ const ShoppingBagPage: React.FC = () => {
 
       if (itemsError) throw itemsError;
 
-      toast.success('Order submitted successfully!');
+      clearBag();
       
-      // Navigate to confirmation page with order details
+      toast.success('Order submitted successfully!');
       navigate('/order-confirmation', {
         state: {
           orderId: orderData.id,
@@ -116,7 +117,6 @@ const ShoppingBagPage: React.FC = () => {
         <h1 className="text-3xl font-bold mb-8">Your Order</h1>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Shopping Bag Items */}
           <div className="lg:col-span-2">
             <div className="bg-white p-6 rounded-lg shadow-sm mb-4">
               <h2 className="text-xl font-semibold mb-4">Items ({itemCount})</h2>
@@ -140,7 +140,6 @@ const ShoppingBagPage: React.FC = () => {
                       </div>
                       <p className="text-sm text-gray-500 mt-1 line-clamp-1">{item.description}</p>
                       
-                      {/* Item quantity controls */}
                       <div className="flex items-center mt-3 space-x-3">
                         <div className="flex items-center border rounded-md">
                           <Button 
@@ -189,7 +188,6 @@ const ShoppingBagPage: React.FC = () => {
             </Link>
           </div>
           
-          {/* Order Summary and Payment */}
           <div className="lg:col-span-1">
             <div className="bg-white p-6 rounded-lg shadow-sm mb-6">
               <h2 className="text-xl font-semibold mb-4">Order Summary</h2>

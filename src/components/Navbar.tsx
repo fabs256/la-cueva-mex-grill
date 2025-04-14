@@ -1,6 +1,6 @@
-
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 import { ShoppingBag as ShoppingBagIcon, User, Menu as MenuIcon, LayoutDashboard } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -8,6 +8,8 @@ import { useShoppingBag } from '@/contexts/ShoppingBagContext';
 
 const Navbar: React.FC = () => {
   const { itemCount } = useShoppingBag();
+  const { user, signOut, isStaff } = useAuth();
+  const navigate = useNavigate();
 
   // Helper function to close the mobile menu
   const closeMobileMenu = () => {
@@ -37,25 +39,36 @@ const Navbar: React.FC = () => {
           <Link to="/bag" className="font-medium text-gray-700 hover:text-lacueva-red transition-colors">
             Cart
           </Link>
-          <Link to="/dashboard" className="font-medium text-gray-700 hover:text-lacueva-red transition-colors">
-            Dashboard
-          </Link>
+          {isStaff && (
+            <Link to="/dashboard" className="font-medium text-gray-700 hover:text-lacueva-red transition-colors">
+              Dashboard
+            </Link>
+          )}
         </nav>
 
         {/* User Actions */}
         <div className="flex items-center space-x-2">
-          <Link to="/account">
-            <Button variant="ghost" size="icon" className="rounded-full">
-              <User className="h-5 w-5" />
+          {user ? (
+            <>
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => signOut()}
+                className="text-gray-700 hover:text-lacueva-red"
+              >
+                Logout
+              </Button>
+            </>
+          ) : (
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => navigate('/auth')}
+              className="text-gray-700 hover:text-lacueva-red"
+            >
+              Login
             </Button>
-          </Link>
-          
-          {/* Dashboard Link */}
-          <Link to="/dashboard">
-            <Button variant="ghost" size="icon" className="rounded-full">
-              <LayoutDashboard className="h-5 w-5" />
-            </Button>
-          </Link>
+          )}
           
           {/* Shopping Bag */}
           <Link to="/bag">

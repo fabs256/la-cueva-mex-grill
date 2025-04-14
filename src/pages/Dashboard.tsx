@@ -1,27 +1,31 @@
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import Navbar from "@/components/Navbar";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { Calendar, ChefHat, CreditCard, Utensils, DollarSign, TrendingUp } from "lucide-react";
-import { format } from 'date-fns';
+import { useAuth } from "@/contexts/AuthContext";
 import { useOrders, OrderStatus } from "@/hooks/useOrders";
 import { useSalesData } from "@/hooks/useSalesData";
 import { useToast } from "@/components/ui/use-toast";
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
+  const { isStaff, user } = useAuth();
   const { orders, loading: ordersLoading, updateOrderStatus } = useOrders();
   const { salesData, popularItems, loading: salesLoading } = useSalesData();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("orders");
   
-  // Calculate summary metrics
+  useEffect(() => {
+    if (!user) {
+      navigate('/auth');
+      return;
+    }
+    
+    if (!isStaff) {
+      toast.error('Access denied. Staff only.');
+      navigate('/');
+      return;
+    }
+  }, [user, isStaff, navigate]);
+
   const todayOrdersCount = orders.filter(order => {
     const orderDate = new Date(order.created_at).toISOString().split('T')[0];
     const today = new Date().toISOString().split('T')[0];
@@ -72,7 +76,6 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <SummaryCard 
             title="Today's Orders" 
@@ -134,12 +137,10 @@ const Dashboard: React.FC = () => {
                     </TableHeader>
                     <TableBody>
                       {orders.map((order) => {
-                        // Format the items string
                         const itemsText = order.items
                           .map(item => `${item.name} (${item.quantity})`)
                           .join(', ');
                         
-                        // Format the time
                         const orderTime = new Date(order.created_at).toLocaleTimeString('en-US', {
                           hour: 'numeric',
                           minute: 'numeric',

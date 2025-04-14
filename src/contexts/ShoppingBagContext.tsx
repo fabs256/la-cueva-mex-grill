@@ -98,6 +98,7 @@ export const ShoppingBagProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
   const clearBag = () => {
     setItems([]);
+    localStorage.removeItem('shoppingBag');
   };
 
   const itemCount = items.reduce((total, item) => total + item.quantity, 0);
