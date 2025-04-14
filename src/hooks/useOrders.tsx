@@ -18,10 +18,12 @@ export interface Order {
   items: OrderItem[];
   total_amount: number;
   order_status: OrderStatus;
+  status?: OrderStatus; // Added for compatibility with Dashboard component
   created_at: string;
   special_instructions?: string;
   customer_email: string;
   customer_phone: string;
+  time?: string; // Added for compatibility
 }
 
 export const useOrders = () => {
@@ -64,8 +66,9 @@ export const useOrders = () => {
             ...order,
             items: orderItems || [],
             time: orderTime,
-            status: order.order_status
-          };
+            status: order.order_status as OrderStatus, // Cast to OrderStatus and add the status field
+            order_status: order.order_status as OrderStatus // Ensure it's the right type
+          } as Order;
         })
       );
 
@@ -97,7 +100,7 @@ export const useOrders = () => {
       setOrders(prevOrders => 
         prevOrders.map(order => 
           order.id === orderId 
-            ? { ...order, order_status: newStatus, status: newStatus } 
+            ? { ...order, order_status: newStatus, status: newStatus } // Update both properties
             : order
         )
       );

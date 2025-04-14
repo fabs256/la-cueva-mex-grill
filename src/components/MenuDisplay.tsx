@@ -13,7 +13,8 @@ const MENU_ITEMS: MenuItemType[] = [
     price: 9.99,
     image: 'https://images.unsplash.com/photo-1595020603925-41a3605dbbad?q=80&w=1000&auto=format&fit=crop',
     category: 'Appetizers',
-    dietary: ['Vegetarian', 'Gluten-Free Option']
+    dietary: ['Vegetarian', 'Gluten-Free Option'],
+    quantity: 0
   },
   {
     id: '2',
@@ -21,7 +22,8 @@ const MENU_ITEMS: MenuItemType[] = [
     description: 'Melted Chihuahua cheese with Mexican chorizo, served with warm tortillas.',
     price: 10.99,
     image: 'https://images.unsplash.com/photo-1582169505937-b9992bd01ed9?q=80&w=1000&auto=format&fit=crop',
-    category: 'Appetizers'
+    category: 'Appetizers',
+    quantity: 0
   },
   {
     id: '3',
@@ -29,7 +31,8 @@ const MENU_ITEMS: MenuItemType[] = [
     description: 'Flour tortilla filled with grilled chicken and melted cheese, served with sour cream and pico de gallo.',
     price: 12.99,
     image: 'https://images.unsplash.com/photo-1618040996337-11b21fb0bf26?q=80&w=1000&auto=format&fit=crop',
-    category: 'Appetizers'
+    category: 'Appetizers',
+    quantity: 0
   },
   {
     id: '4',
@@ -38,7 +41,8 @@ const MENU_ITEMS: MenuItemType[] = [
     price: 14.99,
     image: 'https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?q=80&w=1000&auto=format&fit=crop',
     category: 'Tacos',
-    dietary: ['Gluten-Free Option']
+    dietary: ['Gluten-Free Option'],
+    quantity: 0
   },
   {
     id: '5',
@@ -47,7 +51,8 @@ const MENU_ITEMS: MenuItemType[] = [
     price: 13.99,
     image: 'https://images.unsplash.com/photo-1504544750208-dc0358e63f7f?q=80&w=1000&auto=format&fit=crop',
     category: 'Tacos',
-    dietary: ['Gluten-Free Option']
+    dietary: ['Gluten-Free Option'],
+    quantity: 0
   },
   {
     id: '6',
@@ -56,7 +61,8 @@ const MENU_ITEMS: MenuItemType[] = [
     price: 12.99,
     image: 'https://images.unsplash.com/photo-1552332386-f8dd00dc2f85?q=80&w=1000&auto=format&fit=crop',
     category: 'Tacos',
-    dietary: ['Vegetarian', 'Gluten-Free Option']
+    dietary: ['Vegetarian', 'Gluten-Free Option'],
+    quantity: 0
   },
   {
     id: '7',
@@ -65,7 +71,8 @@ const MENU_ITEMS: MenuItemType[] = [
     price: 15.99,
     image: 'https://images.unsplash.com/photo-1534352956036-cd81e27dd615?q=80&w=1000&auto=format&fit=crop',
     category: 'Entrees',
-    dietary: ['Gluten-Free']
+    dietary: ['Gluten-Free'],
+    quantity: 0
   },
   {
     id: '8',
@@ -74,7 +81,8 @@ const MENU_ITEMS: MenuItemType[] = [
     price: 16.99,
     image: 'https://images.unsplash.com/photo-1544601255-328f864ed49c?q=80&w=1000&auto=format&fit=crop',
     category: 'Entrees',
-    dietary: ['Vegetarian']
+    dietary: ['Vegetarian'],
+    quantity: 0
   },
   {
     id: '9',
@@ -82,7 +90,8 @@ const MENU_ITEMS: MenuItemType[] = [
     description: 'Grilled marinated flank steak served with rice, beans, guacamole, and tortillas.',
     price: 18.99,
     image: 'https://images.unsplash.com/photo-1611250188496-e966043a0629?q=80&w=1000&auto=format&fit=crop',
-    category: 'Entrees'
+    category: 'Entrees',
+    quantity: 0
   },
   {
     id: '10',
@@ -91,7 +100,8 @@ const MENU_ITEMS: MenuItemType[] = [
     price: 3.99,
     image: 'https://images.unsplash.com/photo-1614063305624-83a1763fd3db?q=80&w=1000&auto=format&fit=crop',
     category: 'Beverages',
-    dietary: ['Vegetarian', 'Vegan']
+    dietary: ['Vegetarian', 'Vegan'],
+    quantity: 0
   },
   {
     id: '11',
@@ -100,7 +110,8 @@ const MENU_ITEMS: MenuItemType[] = [
     price: 3.49,
     image: 'https://images.unsplash.com/photo-1629203432180-71e9b18d33e3?q=80&w=1000&auto=format&fit=crop',
     category: 'Beverages',
-    dietary: ['Vegetarian', 'Vegan']
+    dietary: ['Vegetarian', 'Vegan'],
+    quantity: 0
   },
   {
     id: '12',
@@ -109,7 +120,8 @@ const MENU_ITEMS: MenuItemType[] = [
     price: 7.99,
     image: 'https://images.unsplash.com/photo-1624001877690-b61842255ecd?q=80&w=1000&auto=format&fit=crop',
     category: 'Desserts',
-    dietary: ['Vegetarian']
+    dietary: ['Vegetarian'],
+    quantity: 0
   },
   {
     id: '13',
@@ -118,7 +130,8 @@ const MENU_ITEMS: MenuItemType[] = [
     price: 6.99,
     image: 'https://images.unsplash.com/photo-1551651065-dd3a0d50a2d3?q=80&w=1000&auto=format&fit=crop',
     category: 'Desserts',
-    dietary: ['Vegetarian', 'Gluten-Free']
+    dietary: ['Vegetarian', 'Gluten-Free'],
+    quantity: 0
   }
 ];
 
