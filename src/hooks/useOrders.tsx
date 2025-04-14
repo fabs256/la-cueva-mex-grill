@@ -1,8 +1,9 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
 
-export type OrderStatus = 'New' | 'In Progress' | 'Ready' | 'Completed';
+export type OrderStatus = 'New' | 'In Progress' | 'Ready' | 'Completed' | 'Cancelled';
 
 export interface OrderItem {
   id: string;

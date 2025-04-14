@@ -1,10 +1,11 @@
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { useOrders } from '@/hooks/useOrders';
+import { useOrders, OrderStatus } from '@/hooks/useOrders';
 import { useSalesData } from '@/hooks/useSalesData';
 import { format } from 'date-fns';
-import Navbar from '@/components/Navbar'; // Changed from named import to default import
+import Navbar from '@/components/Navbar';
 import {
   Utensils, DollarSign, CreditCard, ChefHat, TrendingUp
 } from 'lucide-react';
@@ -26,9 +27,17 @@ import { ChartContainer } from '@/components/ui/chart';
 const Dashboard: React.FC = () => {
   const { user, isStaff } = useAuth();
   const navigate = useNavigate();
-  const { orders, isLoading: ordersLoading, updateOrderStatus } = useOrders();
-  const { salesData, isLoading: salesLoading } = useSalesData();
+  const { orders, loading: ordersLoading, updateOrderStatus } = useOrders();
+  const { salesData, salesByDay, popularItems, topSellingItems, totalRevenue, averageOrderValue, growthRate, loading: salesLoading } = useSalesData();
   const [activeTab, setActiveTab] = useState('orders');
+  
+  // Chart configuration
+  const chartConfig = {
+    revenue: {
+      label: 'Revenue',
+      color: '#8884d8',
+    },
+  };
   
   // Protect this route - only staff can access
   useEffect(() => {
@@ -89,7 +98,7 @@ const Dashboard: React.FC = () => {
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium">Revenue</CardTitle>
               <CardDescription className="text-2xl font-bold">
-                ${salesData?.totalRevenue?.toFixed(2) || "0.00"}
+                ${totalRevenue?.toFixed(2) || "0.00"}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -101,7 +110,7 @@ const Dashboard: React.FC = () => {
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium">Avg. Order Value</CardTitle>
               <CardDescription className="text-2xl font-bold">
-                ${salesData?.averageOrderValue?.toFixed(2) || "0.00"}
+                ${averageOrderValue?.toFixed(2) || "0.00"}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -112,7 +121,7 @@ const Dashboard: React.FC = () => {
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium">Popular Items</CardTitle>
-              <CardDescription className="text-2xl font-bold">{salesData?.topSellingItems?.[0]?.name || "None"}</CardDescription>
+              <CardDescription className="text-2xl font-bold">{topSellingItems?.[0]?.name || "None"}</CardDescription>
             </CardHeader>
             <CardContent>
               <ChefHat className="h-8 w-8 text-gray-400" />
@@ -180,7 +189,7 @@ const Dashboard: React.FC = () => {
                                     size="sm" 
                                     variant="outline" 
                                     className="text-red-500 hover:text-red-700"
-                                    onClick={() => updateOrderStatus(order.id, 'Cancelled')}
+                                    onClick={() => updateOrderStatus(order.id, 'Cancelled' as OrderStatus)}
                                   >
                                     Cancel
                                   </Button>
@@ -200,7 +209,7 @@ const Dashboard: React.FC = () => {
                                     size="sm" 
                                     variant="outline" 
                                     className="text-red-500 hover:text-red-700"
-                                    onClick={() => updateOrderStatus(order.id, 'Cancelled')}
+                                    onClick={() => updateOrderStatus(order.id, 'Cancelled' as OrderStatus)}
                                   >
                                     Cancel
                                   </Button>
@@ -243,12 +252,12 @@ const Dashboard: React.FC = () => {
                 {salesLoading ? (
                   <div className="text-center py-8">Loading sales data...</div>
                 ) : (
-                  <ChartContainer className="h-[400px]">
-                    {salesData?.salesByDay && salesData.salesByDay.length > 0 ? (
+                  <ChartContainer className="h-[400px]" config={chartConfig}>
+                    {salesByDay && salesByDay.length > 0 ? (
                       <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={salesData.salesByDay}>
+                        <BarChart data={salesByDay}>
                           <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis dataKey="date" />
+                          <XAxis dataKey="name" />
                           <YAxis />
                           <Tooltip />
                           <Legend />
@@ -266,7 +275,7 @@ const Dashboard: React.FC = () => {
               <CardFooter className="flex justify-between text-sm text-muted-foreground">
                 <div className="flex items-center">
                   <TrendingUp className="mr-2 h-4 w-4" />
-                  {salesData?.growthRate ? `${salesData.growthRate > 0 ? '+' : ''}${salesData.growthRate.toFixed(1)}% from previous period` : 'No growth data available'}
+                  {growthRate !== undefined ? `${growthRate > 0 ? '+' : ''}${growthRate.toFixed(1)}% from previous period` : 'No growth data available'}
                 </div>
               </CardFooter>
             </Card>
