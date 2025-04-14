@@ -22,6 +22,7 @@ type PaymentFormValues = {
 
 const ShoppingBagPage: React.FC = () => {
   const { items, removeItem, updateQuantity, subtotal, itemCount } = useShoppingBag();
+  const navigate = useNavigate();
   
   const form = useForm<PaymentFormValues>({
     defaultValues: {
@@ -34,10 +35,52 @@ const ShoppingBagPage: React.FC = () => {
     },
   });
 
-  const onSubmit = (data: PaymentFormValues) => {
-    // In a real app, you would process the payment here
-    console.log('Submitting order:', data);
-    toast.success('Order submitted successfully!');
+  const onSubmit = async (data: PaymentFormValues) => {
+    try {
+      // Create the order in the database
+      const { data: orderData, error: orderError } = await supabase
+        .from('orders')
+        .insert([{
+          customer_name: data.name,
+          customer_email: data.email,
+          customer_phone: '', // Add phone field if needed
+          total_amount: subtotal * 1.0825, // Including tax
+          order_status: 'New',
+          special_instructions: '',
+        }])
+        .select()
+        .single();
+
+      if (orderError) throw orderError;
+
+      // Insert order items
+      const orderItems = items.map(item => ({
+        order_id: orderData.id,
+        menu_item_id: item.id,
+        name: item.name,
+        quantity: item.quantity,
+        price: item.price
+      }));
+
+      const { error: itemsError } = await supabase
+        .from('order_items')
+        .insert(orderItems);
+
+      if (itemsError) throw itemsError;
+
+      toast.success('Order submitted successfully!');
+      
+      // Navigate to confirmation page with order details
+      navigate('/order-confirmation', {
+        state: {
+          orderId: orderData.id,
+          totalAmount: subtotal * 1.0825
+        }
+      });
+    } catch (error) {
+      console.error('Error submitting order:', error);
+      toast.error('Failed to submit order. Please try again.');
+    }
   };
 
   if (items.length === 0) {

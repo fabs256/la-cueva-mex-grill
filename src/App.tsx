@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -11,8 +10,8 @@ import Menu from "./pages/Menu";
 import ShoppingBagPage from "./pages/ShoppingBagPage";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
+import OrderConfirmation from "./pages/OrderConfirmation";
 
-// Create a new QueryClient instance
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -28,7 +27,7 @@ const App = () => (
               <Route path="/menu" element={<Menu />} />
               <Route path="/bag" element={<ShoppingBagPage />} />
               <Route path="/dashboard" element={<Dashboard />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="/order-confirmation" element={<OrderConfirmation />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

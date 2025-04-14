@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
@@ -66,13 +65,13 @@ export const useOrders = () => {
             ...order,
             items: orderItems || [],
             time: orderTime,
-            status: order.order_status as OrderStatus, // Cast to OrderStatus and add the status field
-            order_status: order.order_status as OrderStatus // Ensure it's the right type
-          } as Order;
+            status: order.order_status as OrderStatus,
+            order_status: order.order_status as OrderStatus
+          };
         })
       );
 
-      setOrders(ordersWithItems);
+      setOrders(ordersWithItems as Order[]);
     } catch (err) {
       console.error('Error fetching orders:', err);
       setError(err instanceof Error ? err.message : 'An unknown error occurred');
@@ -100,7 +99,7 @@ export const useOrders = () => {
       setOrders(prevOrders => 
         prevOrders.map(order => 
           order.id === orderId 
-            ? { ...order, order_status: newStatus, status: newStatus } // Update both properties
+            ? { ...order, order_status: newStatus, status: newStatus }
             : order
         )
       );
@@ -126,13 +125,20 @@ export const useOrders = () => {
 
   // Subscribe to real-time updates
   useEffect(() => {
-    // Set up realtime subscription for new, updated, or deleted orders
+    fetchOrders();
+    
+    // Set up realtime subscription for orders table
     const channel = supabase
-      .channel('public:orders')
-      .on('postgres_changes', 
-        { event: '*', schema: 'public', table: 'orders' }, 
+      .channel('orders-channel')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'orders'
+        },
         () => {
-          // Refetch all orders when any change happens
+          console.log('Received real-time update');
           fetchOrders();
         }
       )
