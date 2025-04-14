@@ -1,9 +1,10 @@
+
 import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useShoppingBag } from '@/contexts/ShoppingBagContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { Navbar } from '@/components/Navbar';
+import Navbar from '@/components/Navbar'; // Changed from named import to default import
 import { Button } from '@/components/ui/button';
 import { Trash2, Minus, Plus, CreditCard } from 'lucide-react';
 import { Input } from '@/components/ui/input';

@@ -1,214 +1,233 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
-import { useOrders, OrderStatus } from "@/hooks/useOrders";
-import { useSalesData } from "@/hooks/useSalesData";
-import { useToast } from "@/components/ui/use-toast";
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import { useOrders } from '@/hooks/useOrders';
+import { useSalesData } from '@/hooks/useSalesData';
+import { format } from 'date-fns';
+import Navbar from '@/components/Navbar'; // Changed from named import to default import
+import {
+  Utensils, DollarSign, CreditCard, ChefHat, TrendingUp
+} from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import {
+  Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter
+} from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import {
+  Table, TableCaption, TableHeader, TableBody, TableHead, TableRow, TableCell
+} from "@/components/ui/table";
+import { toast } from "sonner";
+import {
+  ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, 
+  Tooltip, Legend, Bar
+} from 'recharts';
+import { ChartContainer } from '@/components/ui/chart';
 
 const Dashboard: React.FC = () => {
+  const { user, isStaff } = useAuth();
   const navigate = useNavigate();
-  const { isStaff, user } = useAuth();
-  const { orders, loading: ordersLoading, updateOrderStatus } = useOrders();
-  const { salesData, popularItems, loading: salesLoading } = useSalesData();
-  const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState("orders");
+  const { orders, isLoading: ordersLoading, updateOrderStatus } = useOrders();
+  const { salesData, isLoading: salesLoading } = useSalesData();
+  const [activeTab, setActiveTab] = useState('orders');
   
+  // Protect this route - only staff can access
   useEffect(() => {
-    if (!user) {
-      navigate('/auth');
-      return;
-    }
-    
-    if (!isStaff) {
-      toast.error('Access denied. Staff only.');
+    if (user && !isStaff) {
       navigate('/');
-      return;
+      toast.error("You don't have permission to access the dashboard");
+    } else if (!user) {
+      navigate('/auth');
     }
   }, [user, isStaff, navigate]);
 
-  const todayOrdersCount = orders.filter(order => {
-    const orderDate = new Date(order.created_at).toISOString().split('T')[0];
-    const today = new Date().toISOString().split('T')[0];
-    return orderDate === today;
-  }).length;
-  
-  const todayRevenue = orders
-    .filter(order => {
-      const orderDate = new Date(order.created_at).toISOString().split('T')[0];
-      const today = new Date().toISOString().split('T')[0];
-      return orderDate === today;
-    })
-    .reduce((sum, order) => sum + Number(order.total_amount), 0);
-  
-  const avgOrderValue = todayOrdersCount > 0 
-    ? (todayRevenue / todayOrdersCount).toFixed(2)
-    : "0.00";
-
-  const handleStatusUpdate = async (orderId: string, newStatus: OrderStatus) => {
-    await updateOrderStatus(orderId, newStatus);
-    
-    toast({
-      title: "Order status updated",
-      description: `Order status changed to ${newStatus}`,
-    });
-  };
   
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-100">
       <Navbar />
       
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex flex-col md:flex-row items-center justify-between mb-6">
-          <h1 className="text-3xl font-bold text-lacueva-red mb-4 md:mb-0">Kitchen Dashboard</h1>
-          <div className="flex space-x-2">
+      <div className="container mx-auto py-8 px-4">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold">Dashboard</h1>
+          
+          <div className="flex gap-2">
             <Button 
-              onClick={() => navigate('/')}
-              className="bg-lacueva-brown text-white px-4 py-2 rounded hover:bg-lacueva-red transition-colors"
+              variant="outline" 
+              onClick={() => setActiveTab('orders')}
+              className={activeTab === 'orders' ? 'bg-primary/10' : ''}
             >
-              Home
+              Orders
             </Button>
             <Button 
-              onClick={() => navigate('/menu')}
-              className="bg-lacueva-brown text-white px-4 py-2 rounded hover:bg-lacueva-red transition-colors"
+              variant="outline"
+              onClick={() => setActiveTab('sales')} 
+              className={activeTab === 'sales' ? 'bg-primary/10' : ''}
             >
-              Menu
+              Sales
+            </Button>
+            <Button 
+              variant="outline"
+              onClick={() => setActiveTab('inventory')}
+              className={activeTab === 'inventory' ? 'bg-primary/10' : ''}
+            >
+              Inventory
             </Button>
           </div>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <SummaryCard 
-            title="Today's Orders" 
-            value={todayOrdersCount.toString()} 
-            description={`As of ${format(new Date(), 'h:mm a')}`} 
-            icon={<Utensils className="h-6 w-6" />} 
-          />
-          <SummaryCard 
-            title="Revenue" 
-            value={`$${todayRevenue.toFixed(2)}`} 
-            description="Today's sales" 
-            icon={<DollarSign className="h-6 w-6" />} 
-          />
-          <SummaryCard 
-            title="Avg. Order Value" 
-            value={`$${avgOrderValue}`} 
-            description="Per order today" 
-            icon={<CreditCard className="h-6 w-6" />} 
-          />
-          <SummaryCard 
-            title="Active Orders" 
-            value={orders.filter(o => o.status !== 'Completed').length.toString()} 
-            description="Pending preparation" 
-            icon={<ChefHat className="h-6 w-6" />} 
-          />
+        
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
+              <CardDescription className="text-2xl font-bold">{orders?.length || 0}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Utensils className="h-8 w-8 text-gray-400" />
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">Revenue</CardTitle>
+              <CardDescription className="text-2xl font-bold">
+                ${salesData?.totalRevenue?.toFixed(2) || "0.00"}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <DollarSign className="h-8 w-8 text-gray-400" />
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">Avg. Order Value</CardTitle>
+              <CardDescription className="text-2xl font-bold">
+                ${salesData?.averageOrderValue?.toFixed(2) || "0.00"}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <CreditCard className="h-8 w-8 text-gray-400" />
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">Popular Items</CardTitle>
+              <CardDescription className="text-2xl font-bold">{salesData?.topSellingItems?.[0]?.name || "None"}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ChefHat className="h-8 w-8 text-gray-400" />
+            </CardContent>
+          </Card>
         </div>
-
+        
         <Tabs defaultValue="orders" value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="w-full mb-4">
-            <TabsTrigger value="orders">Current Orders</TabsTrigger>
-            <TabsTrigger value="sales">Sales Analysis</TabsTrigger>
-            <TabsTrigger value="popular">Popular Items</TabsTrigger>
+          <TabsList className="mb-6">
+            <TabsTrigger value="orders">Recent Orders</TabsTrigger>
+            <TabsTrigger value="sales">Sales Analytics</TabsTrigger>
+            <TabsTrigger value="inventory">Inventory</TabsTrigger>
           </TabsList>
           
           <TabsContent value="orders">
             <Card>
               <CardHeader>
-                <CardTitle>Today's Orders</CardTitle>
-                <CardDescription>Manage and track today's customer orders</CardDescription>
+                <CardTitle>Recent Orders</CardTitle>
+                <CardDescription>Manage and view the latest customer orders.</CardDescription>
               </CardHeader>
               <CardContent>
                 {ordersLoading ? (
-                  <p className="text-center py-4">Loading orders...</p>
-                ) : orders.length === 0 ? (
-                  <p className="text-center py-4">No orders to display</p>
+                  <div className="text-center py-8">Loading orders...</div>
                 ) : (
                   <Table>
-                    <TableCaption>Current orders as of {format(new Date(), 'MMMM d, yyyy h:mm a')}</TableCaption>
+                    <TableCaption>Orders as of {format(new Date(), 'MMMM d, yyyy')}</TableCaption>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Order #</TableHead>
+                        <TableHead>Order ID</TableHead>
                         <TableHead>Customer</TableHead>
-                        <TableHead>Items</TableHead>
+                        <TableHead>Date</TableHead>
                         <TableHead>Time</TableHead>
-                        <TableHead>Total</TableHead>
+                        <TableHead>Items</TableHead>
+                        <TableHead>Amount</TableHead>
                         <TableHead>Status</TableHead>
-                        <TableHead>Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {orders.map((order) => {
-                        const itemsText = order.items
-                          .map(item => `${item.name} (${item.quantity})`)
-                          .join(', ');
-                        
-                        const orderTime = new Date(order.created_at).toLocaleTimeString('en-US', {
-                          hour: 'numeric',
-                          minute: 'numeric',
-                          hour12: true
-                        });
-                        
-                        return (
+                      {orders?.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={7} className="text-center">
+                            No orders found
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        orders?.map((order) => (
                           <TableRow key={order.id}>
-                            <TableCell>{order.id.substring(0, 8)}</TableCell>
+                            <TableCell className="font-medium">#{order.id.substring(0, 8)}</TableCell>
                             <TableCell>{order.customer_name}</TableCell>
-                            <TableCell className="max-w-[200px] truncate" title={itemsText}>
-                              {itemsText}
-                            </TableCell>
-                            <TableCell>{orderTime}</TableCell>
-                            <TableCell>${Number(order.total_amount).toFixed(2)}</TableCell>
+                            <TableCell>{new Date(order.created_at).toLocaleDateString()}</TableCell>
+                            <TableCell>{new Date(order.created_at).toLocaleTimeString()}</TableCell>
+                            <TableCell>{order.items?.length || 0}</TableCell>
+                            <TableCell>${order.total_amount.toFixed(2)}</TableCell>
                             <TableCell>
-                              <StatusBadge status={order.status as OrderStatus} />
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex space-x-1">
-                                {order.status !== 'In Progress' && (
+                              {order.order_status === 'New' && (
+                                <div className="flex gap-2">
                                   <Button 
                                     size="sm" 
-                                    variant="outline" 
-                                    onClick={() => handleStatusUpdate(order.id, 'In Progress')}
-                                    className="text-xs"
+                                    variant="outline"
+                                    onClick={() => updateOrderStatus(order.id, 'In Progress')}
                                   >
                                     Start
                                   </Button>
-                                )}
-                                {order.status !== 'Ready' && order.status !== 'Completed' && (
                                   <Button 
                                     size="sm" 
                                     variant="outline" 
-                                    onClick={() => handleStatusUpdate(order.id, 'Ready')}
-                                    className="text-xs"
+                                    className="text-red-500 hover:text-red-700"
+                                    onClick={() => updateOrderStatus(order.id, 'Cancelled')}
                                   >
-                                    Ready
+                                    Cancel
                                   </Button>
-                                )}
-                                {order.status !== 'Completed' && (
+                                </div>
+                              )}
+                              
+                              {order.order_status === 'In Progress' && (
+                                <div className="flex gap-2">
                                   <Button 
                                     size="sm" 
-                                    variant="outline" 
-                                    onClick={() => handleStatusUpdate(order.id, 'Completed')}
-                                    className="text-xs"
+                                    variant="outline"
+                                    onClick={() => updateOrderStatus(order.id, 'Completed')}
                                   >
                                     Complete
                                   </Button>
-                                )}
-                              </div>
+                                  <Button 
+                                    size="sm" 
+                                    variant="outline" 
+                                    className="text-red-500 hover:text-red-700"
+                                    onClick={() => updateOrderStatus(order.id, 'Cancelled')}
+                                  >
+                                    Cancel
+                                  </Button>
+                                </div>
+                              )}
+                              
+                              {['Completed', 'Cancelled'].includes(order.order_status) && (
+                                <span className={`px-2 py-1 rounded-full text-xs ${
+                                  order.order_status === 'Completed' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                }`}>
+                                  {order.order_status}
+                                </span>
+                              )}
                             </TableCell>
                           </TableRow>
-                        );
-                      })}
+                        ))
+                      )}
                     </TableBody>
                   </Table>
                 )}
               </CardContent>
               <CardFooter className="flex justify-between">
-                <p className="text-sm text-muted-foreground">
-                  {orders.length} order{orders.length !== 1 ? 's' : ''} total
-                </p>
-                <Button 
-                  className="bg-lacueva-red text-white px-4 py-2 rounded hover:bg-lacueva-brown transition-colors"
-                  onClick={() => window.location.reload()}
-                >
-                  Refresh Orders
+                <div className="text-sm text-muted-foreground">
+                  Showing {orders?.length || 0} orders
+                </div>
+                <Button variant="outline" size="sm" disabled>
+                  Export CSV
                 </Button>
               </CardFooter>
             </Card>
@@ -217,75 +236,89 @@ const Dashboard: React.FC = () => {
           <TabsContent value="sales">
             <Card>
               <CardHeader>
-                <CardTitle>Weekly Sales Overview</CardTitle>
-                <CardDescription>Track your sales performance</CardDescription>
+                <CardTitle>Sales Analytics</CardTitle>
+                <CardDescription>View your restaurant's performance over time.</CardDescription>
               </CardHeader>
               <CardContent>
                 {salesLoading ? (
-                  <p className="text-center py-4">Loading sales data...</p>
+                  <div className="text-center py-8">Loading sales data...</div>
                 ) : (
-                  <div className="h-80 w-full">
-                    <ChartContainer 
-                      config={{ 
-                        sales: { color: "#9b87f5" } 
-                      }}
-                    >
+                  <ChartContainer className="h-[400px]">
+                    {salesData?.salesByDay && salesData.salesByDay.length > 0 ? (
                       <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={salesData}>
+                        <BarChart data={salesData.salesByDay}>
                           <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis dataKey="name" />
+                          <XAxis dataKey="date" />
                           <YAxis />
-                          <Tooltip content={<CustomTooltip />} />
+                          <Tooltip />
                           <Legend />
-                          <Bar dataKey="sales" name="Sales ($)" fill="var(--color-sales)" />
+                          <Bar dataKey="revenue" fill="#8884d8" name="Revenue" />
                         </BarChart>
                       </ResponsiveContainer>
-                    </ChartContainer>
-                  </div>
+                    ) : (
+                      <div className="flex h-full items-center justify-center">
+                        <p className="text-muted-foreground">No sales data available</p>
+                      </div>
+                    )}
+                  </ChartContainer>
                 )}
               </CardContent>
-              <CardFooter>
-                <p className="text-sm text-muted-foreground">
-                  <TrendingUp className="inline h-4 w-4 mr-1" /> Sales data for the last 7 days
-                </p>
+              <CardFooter className="flex justify-between text-sm text-muted-foreground">
+                <div className="flex items-center">
+                  <TrendingUp className="mr-2 h-4 w-4" />
+                  {salesData?.growthRate ? `${salesData.growthRate > 0 ? '+' : ''}${salesData.growthRate.toFixed(1)}% from previous period` : 'No growth data available'}
+                </div>
               </CardFooter>
             </Card>
           </TabsContent>
           
-          <TabsContent value="popular">
+          <TabsContent value="inventory">
             <Card>
               <CardHeader>
-                <CardTitle>Most Popular Items</CardTitle>
-                <CardDescription>Items with the most orders</CardDescription>
+                <CardTitle>Inventory Status</CardTitle>
+                <CardDescription>Track your restaurant inventory.</CardDescription>
               </CardHeader>
               <CardContent>
-                {salesLoading ? (
-                  <p className="text-center py-4">Loading popular items...</p>
-                ) : popularItems.length === 0 ? (
-                  <p className="text-center py-4">No data available</p>
-                ) : (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Item</TableHead>
-                        <TableHead className="text-right">Orders</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {popularItems.map((item) => (
-                        <TableRow key={item.name}>
-                          <TableCell>{item.name}</TableCell>
-                          <TableCell className="text-right">{item.orders}</TableCell>
+                <div className="space-y-4">
+                  <div className="rounded-md border">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Item</TableHead>
+                          <TableHead className="text-right">Stock Level</TableHead>
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                )}
+                      </TableHeader>
+                      <TableBody>
+                        {/* Placeholder inventory data */}
+                        <TableRow>
+                          <TableCell>Tortillas</TableCell>
+                          <TableCell className="text-right">High</TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell>Ground Beef</TableCell>
+                          <TableCell className="text-right">Medium</TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell>Chicken</TableCell>
+                          <TableCell className="text-right">High</TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell>Salsa</TableCell>
+                          <TableCell className="text-right">Medium</TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell>Avocados</TableCell>
+                          <TableCell className="text-right">Low</TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                  </div>
+                </div>
               </CardContent>
               <CardFooter>
-                <p className="text-sm text-muted-foreground">
-                  <Calendar className="inline h-4 w-4 mr-1" /> Data from all orders
-                </p>
+                <Button variant="outline" className="w-full" disabled>
+                  Update Inventory
+                </Button>
               </CardFooter>
             </Card>
           </TabsContent>
@@ -293,66 +326,6 @@ const Dashboard: React.FC = () => {
       </div>
     </div>
   );
-};
-
-const SummaryCard = ({ title, value, description, icon }: { 
-  title: string, 
-  value: string, 
-  description: string, 
-  icon: React.ReactNode 
-}) => {
-  return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-sm font-medium">{title}</CardTitle>
-        <div className="h-8 w-8 rounded-full bg-lacueva-lightBg flex items-center justify-center">
-          {icon}
-        </div>
-      </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold">{value}</div>
-        <p className="text-xs text-muted-foreground">{description}</p>
-      </CardContent>
-    </Card>
-  );
-};
-
-const StatusBadge = ({ status }: { status: OrderStatus }) => {
-  let color;
-  switch (status) {
-    case 'New':
-      color = 'bg-blue-100 text-blue-800';
-      break;
-    case 'In Progress':
-      color = 'bg-yellow-100 text-yellow-800';
-      break;
-    case 'Ready':
-      color = 'bg-green-100 text-green-800';
-      break;
-    case 'Completed':
-      color = 'bg-purple-100 text-purple-800';
-      break;
-    default:
-      color = 'bg-gray-100 text-gray-800';
-  }
-  
-  return (
-    <span className={`px-2 py-1 rounded text-xs font-medium ${color}`}>
-      {status}
-    </span>
-  );
-};
-
-const CustomTooltip = ({ active, payload, label }: any) => {
-  if (active && payload && payload.length) {
-    return (
-      <ChartTooltipContent>
-        <p className="font-medium">{`${label}`}</p>
-        <p className="text-sm">{`Sales: $${payload[0].value.toFixed(2)}`}</p>
-      </ChartTooltipContent>
-    );
-  }
-  return null;
 };
 
 export default Dashboard;
