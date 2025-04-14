@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 export interface MenuItem {
@@ -9,6 +8,8 @@ export interface MenuItem {
   image?: string;
   category: string;
   dietary?: string[];
+  quantity: number;
+  specialInstructions?: string;
 }
 
 export interface CartItem extends MenuItem {
