@@ -1,7 +1,7 @@
 
 import React from 'react';
 import Navbar from '@/components/Navbar';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useShoppingBag } from '@/contexts/ShoppingBagContext';
 import { Trash2, Minus, Plus, CreditCard } from 'lucide-react';
@@ -10,6 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Form, FormField, FormItem, FormLabel, FormControl } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 type PaymentFormValues = {
   name: string;
