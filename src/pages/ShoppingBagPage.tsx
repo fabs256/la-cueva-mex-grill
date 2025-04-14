@@ -38,17 +38,22 @@ const ShoppingBagPage: React.FC = () => {
 
   const onSubmit = async (data: PaymentFormValues) => {
     try {
+      // Generate a unique session ID
+      const sessionId = `session_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+      
       // Create the order in the database
       const { data: orderData, error: orderError } = await supabase
         .from('orders')
-        .insert([{
+        .insert({
           customer_name: data.name,
           customer_email: data.email,
           customer_phone: '', // Add phone field if needed
           total_amount: subtotal * 1.0825, // Including tax
           order_status: 'New',
           special_instructions: '',
-        }])
+          order_type: 'pickup', // Adding required order_type
+          session_id: sessionId // Adding required session_id
+        })
         .select()
         .single();
 
